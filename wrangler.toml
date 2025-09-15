@@ -1,0 +1,10 @@
+name = "cfone"
+compatibility_date = "2025-09-15"
+
+[site]
+bucket = "./public"
+
+[[rules]]
+type = "ESModule"
+globs = ["**/*.js"]
+fallthrough = true
