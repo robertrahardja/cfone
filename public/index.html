@@ -11,6 +11,12 @@
 		<p>This page comes from a static asset stored at `public/index.html` as configured in `wrangler.jsonc`.</p>
 		<button id="button" type="button">Fetch a random UUID</button>
 		<output id="random" for="button"></output>
+
+		<div style="margin-top: 20px;">
+			<button id="helloButton" type="button">Call Hello World Function</button>
+			<p id="helloResult" style="margin-top: 10px; font-weight: bold;"></p>
+		</div>
+
 		<script>
 			fetch('/message')
 				.then((resp) => resp.text())
@@ -26,6 +32,20 @@
 					.then((text) => {
 						const random = document.getElementById('random');
 						random.textContent = text;
+					});
+			});
+
+			const helloButton = document.getElementById('helloButton');
+			helloButton.addEventListener('click', () => {
+				fetch('/helloworld')
+					.then((resp) => resp.text())
+					.then((text) => {
+						const result = document.getElementById('helloResult');
+						result.textContent = text;
+					})
+					.catch((error) => {
+						const result = document.getElementById('helloResult');
+						result.textContent = 'Error: ' + error.message;
 					});
 			});
 		</script>
