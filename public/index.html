@@ -17,6 +17,11 @@
 			<p id="helloResult" style="margin-top: 10px; font-weight: bold"></p>
 		</div>
 
+		<div style="margin-top: 20px">
+			<button id="secretButton" type="button">Show Secret</button>
+			<p id="secretResult" style="margin-top: 10px; font-weight: bold; color: #0066cc"></p>
+		</div>
+
 		<script>
 			fetch('/message')
 				.then((resp) => resp.text())
@@ -45,6 +50,20 @@
 					})
 					.catch((error) => {
 						const result = document.getElementById('helloResult');
+						result.textContent = 'Error: ' + error.message;
+					});
+			});
+
+			const secretButton = document.getElementById('secretButton');
+			secretButton.addEventListener('click', () => {
+				fetch('/secret')
+					.then((resp) => resp.json())
+					.then((data) => {
+						const result = document.getElementById('secretResult');
+						result.textContent = 'Secret: ' + data.secret;
+					})
+					.catch((error) => {
+						const result = document.getElementById('secretResult');
 						result.textContent = 'Error: ' + error.message;
 					});
 			});
