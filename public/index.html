@@ -23,48 +23,86 @@
 		</div>
 
 		<script>
+			// Check if we're in an iframe
+			const isInIframe = window !== window.parent;
+
+			// Send ready message to parent if in iframe
+			if (isInIframe) {
+				window.parent.postMessage({
+					type: 'avatar-ready',
+					timestamp: Date.now()
+				}, '*');
+			}
+
+			// Listen for messages from parent
+			window.addEventListener('message', function(event) {
+				// You can add origin validation here if needed
+				console.log('Received message from parent:', event.data);
+			});
+
+			// Helper function to notify parent of events
+			function notifyParent(eventType, data) {
+				if (isInIframe) {
+					window.parent.postMessage({
+						type: eventType,
+						data: data,
+						timestamp: Date.now()
+					}, '*');
+				}
+			}
+
 			fetch('/message')
 				.then((resp) => resp.text())
 				.then((text) => {
 					const h1 = document.getElementById('heading');
 					h1.textContent = text;
+					notifyParent('message-loaded', { message: text });
 				});
 
 			const button = document.getElementById('button');
 			button.addEventListener('click', () => {
+				notifyParent('button-clicked', { button: 'random' });
 				fetch('/random')
 					.then((resp) => resp.text())
 					.then((text) => {
 						const random = document.getElementById('random');
 						random.textContent = text;
+						notifyParent('random-generated', { value: text });
 					});
 			});
 
 			const helloButton = document.getElementById('helloButton');
 			helloButton.addEventListener('click', () => {
+				notifyParent('button-clicked', { button: 'hello' });
 				fetch('/helloworld')
 					.then((resp) => resp.text())
 					.then((text) => {
 						const result = document.getElementById('helloResult');
 						result.textContent = text;
+						notifyParent('hello-response', { message: text });
 					})
 					.catch((error) => {
 						const result = document.getElementById('helloResult');
 						result.textContent = 'Error: ' + error.message;
+						notifyParent('error', { error: error.message });
 					});
 			});
 
 			const secretButton = document.getElementById('secretButton');
 			secretButton.addEventListener('click', () => {
+				notifyParent('button-clicked', { button: 'secret' });
 				fetch('/secret')
 					.then((resp) => resp.json())
 					.then((data) => {
 						const result = document.getElementById('secretResult');
 						result.textContent = 'Secret: ' + data.secret;
+						// Don't send actual secret to parent - just notify action
+						notifyParent('secret-accessed', { status: 'displayed' });
 					})
 					.catch((error) => {
 						const result = document.getElementById('secretResult');
 						result.textContent = 'Error: ' + error.message;
+						notifyParent('error', { error: error.message });
 					});
 			});
 		</script>
