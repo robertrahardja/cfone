@@ -49,9 +49,15 @@ export const onRequest: PagesFunction<Env, "", DataWithUser> = async (context) =
 		}
 	}
 
-	// STEP 4: CHECK LOGIN FOR API CALLS
-	// If someone is calling your /api/ endpoints, check if they're logged in
-	if (url.pathname.startsWith('/api/')) {
+	// STEP 4: CHECK LOGIN FOR API CALLS AND SENSITIVE ENDPOINTS
+	// Protected paths that require authentication
+	const protectedPaths = ['/api/', '/secret', '/dashboard'];
+	const isProtectedPath = protectedPaths.some(path => url.pathname.startsWith(path));
+
+	// Allow access from your own domain (iframe) without auth
+	const isFromAllowedOrigin = origin && ALLOWED_DOMAINS.includes(origin);
+
+	if (isProtectedPath && !isFromAllowedOrigin) {
 		// Look for a token in the Authorization header
 		// Format: "Authorization: Bearer abc123token"
 		const token = request.headers.get('Authorization')?.replace('Bearer ', '');
